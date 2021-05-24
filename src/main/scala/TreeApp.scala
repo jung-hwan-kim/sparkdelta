@@ -10,10 +10,17 @@ object TreeApp {
 
   def main(args: Array[String]) {
     val spark = SparkSession.builder.appName("Simple Application").getOrCreate()
-    val logData = spark.read.textFile(logFile).cache()
-    val numAs = logData.filter(line => line.contains("a")).count()
-    val numBs = logData.filter(line => line.contains("b")).count()
-    println(s"Lines with a: $numAs, Lines with b: $numBs")
+    var df = spark.read.format("csv").option("header", true).schema(treeSchema).load("/var/data/csv/trees.csv")
+    // df.write.format("delta").saveAsTable("trees") // when we want to store it to hive metastore
+    df.dtypes
+    df.show()
+
+    var trees = spark.read.format("delta").load("/var/data/delta/trees")
+
+    trees.createTempView("trees")
+    spark.sql("describe table trees").show()
+    spark.sql("select count(*), avg(girth) from trees").show()
+    trees.dtypes
     spark.stop()
   }
 }
