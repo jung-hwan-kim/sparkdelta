@@ -9,13 +9,16 @@ object TreeApp {
     StructField("volume", DoubleType, true)))
 
   def main(args: Array[String]) {
-    val spark = SparkSession.builder.appName("Simple Application").getOrCreate()
+    val spark = SparkSession.builder.appName("TreeApp").getOrCreate()
     var df = spark.read.format("csv").option("header", true).schema(treeSchema).load("/var/data/csv/trees.csv")
     // df.write.format("delta").saveAsTable("trees") // when we want to store it to hive metastore
     df.dtypes
     df.show()
 
+
     var trees = spark.read.format("delta").load("/var/data/delta/trees")
+
+
 
     trees.createTempView("trees")
     spark.sql("describe table trees").show()
