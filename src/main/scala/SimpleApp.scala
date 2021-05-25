@@ -1,4 +1,9 @@
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types.{StringType, StructField, StructType, TimestampType}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+
+import java.sql.Timestamp
+import java.time.Instant
+import java.util.UUID
 
 object SimpleApp {
 
@@ -6,11 +11,21 @@ object SimpleApp {
   def main(args: Array[String]) {
     val logFile = "README.md"
     val spark = SparkSession.builder.appName("Simple App").getOrCreate()
-    val logData = spark.read.textFile(logFile).cache()
-    val numAs = logData.filter(line => line.contains("a")).count()
-    val numBs = logData.filter(line => line.contains("b")).count()
+    val logData = Seq (
+      Row(UUID.randomUUID().toString, "cat", "msg", java.sql.Timestamp.from(java.time.Instant.now))
+    )
+    val logSchema = List(
+      StructField("id", StringType, false),
+      StructField("cat", StringType, false),
+      StructField("msg", StringType, true),
+      StructField("date", TimestampType, true)
+    )
 
-    println(s"Lines with a: $numAs, Lines with b: $numBs")
+    val logDf = spark.createDataFrame(
+      spark.sparkContext.parallelize(logData),
+      StructType(logSchema)
+    )
+    logDf.write.format("delta").mode("append").save("/var/data/delta/log")
     spark.stop()
   }
 }
