@@ -1,4 +1,4 @@
-## Journey into Delta Lake
+##  Trying out Delta Lake
 
 ```shell
 bin/spark-shell 
@@ -9,4 +9,10 @@ bin/spark-shell
 
 ```shell
 spark-submit --class "SimpleApp" --master local ~/git/sparkdelta/target/scala-2.12/sparkdelta-assembly-0.1.jar
+```
+
+```scala
+
+spark.read.format("delta").load("/var/data/delta/log")
+
 ```

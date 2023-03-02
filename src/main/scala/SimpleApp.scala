@@ -7,12 +7,9 @@ import java.util.UUID
 
 object SimpleApp {
 
-  // an example from Apache Spark documentation
-  def main(args: Array[String]) {
-    val logFile = "README.md"
-    val spark = SparkSession.builder.appName("Simple App").getOrCreate()
+  def log(spark: SparkSession, cat: String, msg: String) {
     val logData = Seq (
-      Row(UUID.randomUUID().toString, "cat", "msg", java.sql.Timestamp.from(java.time.Instant.now))
+      Row(UUID.randomUUID().toString, cat, msg, java.sql.Timestamp.from(java.time.Instant.now))
     )
     val logSchema = List(
       StructField("id", StringType, false),
@@ -26,6 +23,14 @@ object SimpleApp {
       StructType(logSchema)
     )
     logDf.write.format("delta").mode("append").save("/var/data/delta/log")
+  }
+
+  // an example from Apache Spark documentation
+  def main(args: Array[String]) {
+    val logFile = "README.md"
+    val spark = SparkSession.builder.appName("Simple App").getOrCreate()
+
+    log(spark, "ingest", "testing..")
     spark.stop()
   }
 }
