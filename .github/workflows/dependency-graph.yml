@@ -9,7 +9,7 @@ on:
 jobs:
   update-graph:
     name: Update Dependency Graph
-    runs-on: openjdk:8
+    runs-on: openjdk:8-oraclelinux8
     steps:
       - uses: actions/checkout@v3
       - uses: scalacenter/sbt-dependency-submission@v2
